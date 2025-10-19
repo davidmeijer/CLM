@@ -22,3 +22,10 @@ __pycache__
 
 # version file (managed by setuptools-scm)
 src/clm/_version.py
+
+# Harvest
+.vscode
+
+# no files other than .gitkeep in /harvest/data
+harvest/data/*
+!harvest/data/.gitkeep
