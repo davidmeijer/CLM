@@ -156,7 +156,7 @@ paths:
   # Base directory for outputs
   output_dir: data
   # The input dataset file.
-  dataset: "../tests/test_data/LOTUS_truncated.txt"
+  dataset: "../harvest/data/retromol_512.txt"
   # File containing data from PubChem.
   pubchem_tsv_file: "../tests/test_data/PubChem_truncated.tsv"
 
