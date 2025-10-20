@@ -12,7 +12,6 @@ from typing import Dict, List, Optional
 import pandas as pd
 from tqdm import tqdm
 
-# --- Local taxonomy import ---
 try:
     from ete3 import NCBITaxa
 except ImportError as e:
@@ -37,6 +36,10 @@ def cli() -> argparse.Namespace:
 def _get_ncbi(work_dir: str, update: bool = False) -> NCBITaxa:
     """
     Initialize a local NCBITaxa instance that keeps its SQLite DB inside work_dir.
+
+    :param work_dir: Directory to store the local taxonomy database
+    :param update: Whether to force update the local taxonomy database
+    :return: NCBITaxa instance
     """
     global _NCBI
     if _NCBI is not None:
@@ -62,6 +65,10 @@ def _get_ncbi(work_dir: str, update: bool = False) -> NCBITaxa:
 def fetch(url: str, work_dir: str = ".") -> str:
     """
     Download `url` into `work_dir` with progress; unzip if needed.
+
+    :param url: URL to download
+    :param work_dir: Directory to store the downloaded file
+    :return: Path to the downloaded (and possibly unzipped) file/directory
     """
     os.makedirs(work_dir, exist_ok=True)
     name = unquote(os.path.basename(urlparse(url).path)) or "downloaded.file"
@@ -95,6 +102,10 @@ def get_lineage_text(genus: str, ncbi: NCBITaxa) -> List[str]:
     """
     Retrieve the taxonomic lineage (names) for a given genus using local NCBI taxonomy DB.
     Returns [] if not found.
+
+    :param genus: Genus name
+    :param ncbi: NCBITaxa instance
+    :return: List of taxonomic names in the lineage
     """
     try:
         mapping = ncbi.get_name_translator([genus])
@@ -122,6 +133,10 @@ def get_lineage_text(genus: str, ncbi: NCBITaxa) -> List[str]:
 def determine_organism_type(genus: str, ncbi: NCBITaxa) -> str:
     """
     Determine if the given genus corresponds to a bacterium or fungus using local taxonomy.
+
+    :param genus: Genus name
+    :param ncbi: NCBITaxa instance
+    :return: "bacterium", "fungal", or "other"
     """
     lineage = get_lineage_text(genus, ncbi)
     s = set(lineage)
@@ -151,9 +166,9 @@ def main() -> None:
     chunk_size = 1000
     genus_counter = Counter()
 
-    outpath = os.path.join(args.work_dir, "coconut_microbial_fungal_smiles.csv")
+    outpath = os.path.join(args.work_dir, "coconut_microbial_fungal_smiles.txt")
     with open(outpath, "w") as out_f:
-        out_f.write("identifier,canonical_smiles\n")
+        out_f.write("smiles,identifier\n")
 
         for chunk in tqdm(pd.read_csv(fpath, chunksize=chunk_size), desc="Processing COCONUT dataset"):
             chunk = chunk[["identifier", "canonical_smiles", "organisms"]]
@@ -184,16 +199,16 @@ def main() -> None:
                         bacterial_or_fungal_found = True
 
                 if bacterial_or_fungal_found:
-                    out_f.write(f"{identifier},{smiles}\n")
+                    out_f.write(f"{smiles},{identifier}\n")
 
             processed_rows += len(chunk)
             out_f.flush()
 
-    most_common_genera = genus_counter.most_common(10)
-    print("Most common genera in COCONUT dataset:")
-    for genus, count in most_common_genera:
-        organism_type = genus_to_type_cache.get(genus, "unknown")
-        print(f"{genus}: {count} occurrences ({organism_type})")
+    # most_common_genera = genus_counter.most_common(10)
+    # print("Most common genera in COCONUT dataset:")
+    # for genus, count in most_common_genera:
+    #     organism_type = genus_to_type_cache.get(genus, "unknown")
+    #     print(f"{genus}: {count} occurrences ({organism_type})")
 
     print(f"Total unique genera processed: {len(genus_counter)}")
     print(f"Processed {processed_rows} rows from COCONUT dataset that had both 'canonical_smiles' and 'organisms'")
