@@ -142,7 +142,7 @@ paths:
   # Base directory for outputs
   output_dir: data
   # The input dataset file.
-  dataset: "../harvest/data/retromol_512.txt"
+  dataset: "../../../data/harvest/inputs/retromol_512_binary.txt"
   # File containing data from PubChem.
   pubchem_tsv_file: "../tests/test_data/PubChem_truncated.tsv"
 

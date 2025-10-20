@@ -13,15 +13,7 @@ folds: 3
 # Each fold trains 'train_seeds' number of models on the training set for that fold.
 train_seeds:
   - 0
-  # - 1
-  # - 2
-  # - 3
-  # - 4
-  # - 5
-  # - 6
-  # - 7
-  # - 8
-  # - 9
+  - 1
 
 # Seeds used when sampling molecules from the trained models.
 # The number of 'sample_seeds' values specifies how many times the 'sample_molecules_RNN' step is executed,
@@ -37,14 +29,10 @@ sample_seeds:
 # Note: Both 0 and 1 indicate no augmentation, but with 1, the representations are updated to be different
 # than those provided in the original dataset.
 enum_factors:
-  # - 0
-  - 10
-  # - 30
-  # - 50
-  # - 100
+  - 0
 
 #  Limits the maximum number of input SMILES to be read from the original dataset. 0 means there's no limit.
-max_input_smiles: 0
+max_input_smiles: 1000
 
 # A dictionary defining the arguments to be passed to the preprocess command.
 preprocess:
@@ -60,25 +48,26 @@ preprocess:
   # Specifies whether to remove duplicate SMILES from the training set, identifying duplicates by inchikey.
   keep_duplicates: false
 
+
 # Parameters that define the neural network model and training process.
 model_params:
   # Type of Recurrent Neural Network (RNN) to use.
   # Available options are 'LSTM' and 'GRU'
   rnn_type: LSTM
-  embedding_size: 128 # Size of the embedding vectors that represent each token in the input sequence.
-  hidden_size: 1024 # Size of the hidden state of the RNN.
+  embedding_size: 32 # Size of the embedding vectors that represent each token in the input sequence.
+  hidden_size: 256 # Size of the hidden state of the RNN.
   n_layers: 3 # Number of stacked RNN layers in the model.
   dropout: 0 # Dropout rate applied to the RNN layer for regularization.
   batch_size: 64 # Number of samples processed before the models internal parameters are updated.
   learning_rate: 0.001 # Used by the optimizer to update model parameters.
-  max_epochs: 999999 # Maximum number of training epochs (complete passes through the training dataset).
+  max_epochs: 3 # Maximum number of training epochs (complete passes through the training dataset).
   patience: 50000 # Number of steps with no improvement in the validation loss after which early stopping is triggered.
 
   # An RNN model conditioned on input descriptors (experimentally obtained properties of the input SMILES).
   # Note that rnn_type and other RNN architecture parameters are still applicable in this case.
   conditional:
     # Is the conditional model enabled?
-    enabled: true
+    enabled: false
 
     # Note: Both emb and emb_l below cannot be true at the same time.
     # Concatenate the descriptors directly to the token embeddings at each step in the sequence?
@@ -142,9 +131,6 @@ err_ppm: 10
 # across all folds to be considered for further evaluation.
 structural_prior_min_freq:
   - 1
-  # - 2
-  # - 3
-  # - 4
 
 # seed used as a global random seed for steps not covered by 'train_seeds' or 'sample_seeds'.
 random_seed: 5831
@@ -156,7 +142,7 @@ paths:
   # Base directory for outputs
   output_dir: data
   # The input dataset file.
-  dataset: "../../../data/harvest/inputs/retromol_512_binary.txt"
+  dataset: "../../../data/harvest/inputs/coconut_microbial_fungal_smiles.txt"
   # File containing data from PubChem.
   pubchem_tsv_file: "../tests/test_data/PubChem_truncated.tsv"
 
@@ -206,7 +192,7 @@ paths:
   known_smiles_file: "{output_dir}/{enum_factor}/prior/samples/known_{dataset}_{repr}_{fold}_{train_seed}_{sample_seed}_samples_masses.csv.gz"
   # Invalid SMILES sampled per trained model.
   invalid_smiles_file: "{output_dir}/{enum_factor}/prior/samples/invalid_{dataset}_{repr}_{fold}_{train_seed}_{sample_seed}_samples_masses.csv.gz"
-  # Known (training set) sampled molecules within a fold.
+  # Known (training set) sampled molecules  within a fold.
   collect_known_smiles: "{output_dir}/{enum_factor}/prior/samples/known_{dataset}_{repr}_{fold}_unique_masses.csv.gz"
   # Invalid sampled SMILES within a fold.
   collect_invalid_smiles: "{output_dir}/{enum_factor}/prior/samples/invalid_{dataset}_{repr}_{fold}_unique_masses.csv.gz"

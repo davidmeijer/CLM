@@ -78,7 +78,7 @@ model_params:
   # Note that rnn_type and other RNN architecture parameters are still applicable in this case.
   conditional:
     # Is the conditional model enabled?
-    enabled: true
+    enabled: false
 
     # Note: Both emb and emb_l below cannot be true at the same time.
     # Concatenate the descriptors directly to the token embeddings at each step in the sequence?
@@ -156,7 +156,7 @@ paths:
   # Base directory for outputs
   output_dir: data
   # The input dataset file.
-  dataset: "../../../data/harvest/inputs/retromol_512_binary.txt"
+  dataset: "../../../data/harvest/inputs/coconut_microbial_fungal_smiles.txt"
   # File containing data from PubChem.
   pubchem_tsv_file: "../tests/test_data/PubChem_truncated.tsv"
 
