@@ -82,7 +82,7 @@ def main() -> None:
     os.makedirs(args.work_dir, exist_ok=True)
 
     # Force all outputs into work-dir
-    output_path = os.path.join(args.work_dir, "valid_dereplicated.smi")
+    output_path = os.path.join(args.work_dir, "valid_dereplicated.txt")
     log_path = os.path.join(args.work_dir, "dereplicate_smiles.log")
 
     try:
