@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Submit generate_compounds.py to Slurm, using CURRENT activated conda Python environment.
+# Usage: sbatch_generate_compounds.sh <model-dir> <work-dir> <sample-size>
+# Optional env overrides:
+#   PARTITION, CPUS, MEM, TIME, GRES
 
 set -euo pipefail
 
