@@ -39,6 +39,9 @@ def process_compounds(input_path: str, output_path: str) -> Tuple[int, int, int,
         open(input_path, "r", encoding="utf-8", errors="replace") as fin,
         open(output_path, "w", encoding="utf-8") as fout,
     ):
+        # Write header
+        fout.write("identifier,inchikey,canonical_smiles\n")
+
         for line_idx, line in tqdm(enumerate(fin), desc="Processing SMILES", unit="lines"):
             total_lines += 1
             s = line.strip()
@@ -61,8 +64,8 @@ def process_compounds(input_path: str, output_path: str) -> Tuple[int, int, int,
                 duplicate_valid += 1
                 continue
             seen.add(inchikey_no_stereo)
-            fout.write(f"{can}\n")
             unique_smiles += 1
+            fout.write(f"{unique_smiles},{inchikey_no_stereo},{can}\n")
 
             # Flush output every 1000 lines
             if line_idx % 1000 == 0:
