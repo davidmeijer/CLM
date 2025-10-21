@@ -26,8 +26,8 @@ def cli() -> argparse.Namespace:
     
     parser.add_argument("--sample-size", type=int, default=1_000_000, help="Number of compounds to sample per model")
 
-    parser.add_argument("--train-dataset-name", type=str, default="coconut_smiles", help="Name of the training dataset")
-    parser.add_argument("--enum-factor", type=int, default=100, help="Enumeration factor for model selection")
+    parser.add_argument("--train-dataset-name", type=str, default="coconut_microbial_fungal_smiles", help="Name of the training dataset")
+    parser.add_argument("--enum-factor", type=int, default=10, help="Enumeration factor for model selection")
     parser.add_argument("--rnn-type", type=str, default="LSTM", choices=["GRU", "LSTM"], help="Type of RNN to use")
     parser.add_argument("--n-layers", type=int, default=3, help="Number of RNN layers")
     parser.add_argument("--embedding-size", type=int, default=128, help="Size of the embedding layer")
