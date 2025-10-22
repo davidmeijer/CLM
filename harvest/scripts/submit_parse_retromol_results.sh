@@ -51,7 +51,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Adjust filename below if yours is named differently:
-SCRIPT="${SCRIPT_DIR}/extract_retromol_fingerprints.py"
+SCRIPT="${SCRIPT_DIR}/parse_retromol_results.py"
 if [[ ! -f "$SCRIPT" ]]; then
   echo "Cannot find ${SCRIPT}. Put this wrapper next to your Python script or edit SCRIPT path." >&2
   exit 3

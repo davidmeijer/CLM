@@ -6,6 +6,8 @@
 #   SEP (default: comma), ID_COL (default: identifier), SMILES_COL (default: canonical_smiles)
 #   WORKERS (default: = CPUS)
 
+# NOTE: Make sure to have installed RetroMol first!
+
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
