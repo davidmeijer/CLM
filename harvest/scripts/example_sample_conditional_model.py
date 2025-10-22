@@ -198,7 +198,7 @@ def main() -> None:
     )
     print(f"Loaded {len(models)} models")
 
-    def get_samples(smiles):
+    def get_samples(name, smiles):
         # Parse SMILES of compound and regenerate compounds from its fingerprint
         num_bits = 512
         counted = False
@@ -214,11 +214,11 @@ def main() -> None:
             num_bits=num_bits,
             counted=counted,
         )
-        # add_fp_vector = fp_gen.fingerprint_from_kmers(
-        #     kmers=[[(None, r"C([C@@H](C(=O)O)N)S"),]],
-        #     num_bits=num_bits,
-        #     counted=counted,
-        # )
+        add_fp_vector = fp_gen.fingerprint_from_kmers(
+            kmers=[[(None, r"C([C@@H](C(=O)O)N)S"),]],
+            num_bits=num_bits,
+            counted=counted,
+        )
         fp_vector += add_fp_vector
         print(fp_vector.shape)
         samples = []
@@ -258,15 +258,22 @@ def main() -> None:
         fps = [mol_to_fpr(m, rad=2, nbs=2048) for m in mols]
         fps_array = np.array(fps)
         print(fps_array.shape)
+
+        # # write sampled smiles to file
+        # out_smiles_path = os.path.join(args.outdir, f"samples_{name}.smi")
+        # with open(out_smiles_path, "w") as f:
+        #     for s in samples:
+        #         f.write(f"{s}\n")
+
         return fps_array
 
     smi1 = r"CC[C@@H]1[C@@]([C@@H]([C@H](C(=O)[C@@H](C[C@@]([C@@H]([C@H]([C@@H]([C@H](C(=O)O1)C)O[C@H]2C[C@@]([C@H]([C@@H](O2)C)O)(C)OC)C)O[C@H]3[C@@H]([C@H](C[C@H](O3)C)N(C)C)O)(C)O)C)C)O)(C)O"
     fp_smi1 = mol_to_fpr(smiles_to_mol(smi1), rad=2, nbs=2048)
-    fps_sampled1 = get_samples(smi1)
+    fps_sampled1 = get_samples("A", smi1)
 
     smi2 = r"CCCCCCCCCC(=O)N[C@@H](CC1=CNC2=CC=CC=C21)C(=O)N[C@H](CC(=O)N)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@H]3[C@H](OC(=O)[C@@H](NC(=O)[C@@H](NC(=O)[C@H](NC(=O)CNC(=O)[C@@H](NC(=O)[C@H](NC(=O)[C@@H](NC(=O)[C@@H](NC(=O)CNC3=O)CCCN)CC(=O)O)C)CC(=O)O)CO)[C@H](C)CC(=O)O)CC(=O)C4=CC=CC=C4N)C"
     fp_smi2 = mol_to_fpr(smiles_to_mol(smi2), rad=2, nbs=2048)
-    fps_sampled2 = get_samples(smi2)
+    fps_sampled2 = get_samples("B", smi2)
 
     # add 1 dim to single fps
     fp_smi1 = fp_smi1.reshape(1, -1)
