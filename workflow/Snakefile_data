@@ -3,6 +3,7 @@ threads: 1
 # -----------------------------------------------------------------------------
 # Setup
 # -----------------------------------------------------------------------------
+CONFIG_FILE = workflow.configfiles[0] if workflow.configfiles else "config/config.yaml"
 PATHS = config['paths']
 DATASET = os.path.splitext(os.path.basename(config["paths"]["dataset"]))[0]
 REPRESENTATIONS = config["representations"]
@@ -55,7 +56,8 @@ rule preprocess:
     input:
         PATHS["dataset"]
     output:
-        PATHS['preprocess_output']
+        processed=PATHS['preprocess_output']
+        config_copy=PATHS['config_copy']
     resources:
         mem_mb=12000,
         runtime=30,
@@ -63,13 +65,15 @@ rule preprocess:
         'clm preprocess '
         '--seed {config[random_seed]} '
         '--input-file {input} '
-        '--output-file {output} '
+        '--output-file {output.processed} '
         '--min-heavy-atoms {config[preprocess][min_heavy_atoms]} '
         '--valid-atoms {config[preprocess][valid_atoms]} '
         '--max-input-smiles {config[max_input_smiles]} '
         f'{"--keep_duplicates" if config["preprocess"]["keep_duplicates"] else ""}'
         f'{"--no-neutralise " if not config["preprocess"]["neutralise"] else ""} '
         f'{"--remove-rare " if config["preprocess"]["remove_rare"] else ""} '
+        '&& mkdir -p $(dirname {output.config_copy}) '
+        '&& cp {CONFIG_FILE} {output.config_copy} '
 
 
 rule create_training_sets:
