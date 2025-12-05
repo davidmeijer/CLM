@@ -56,7 +56,7 @@ rule preprocess:
     input:
         PATHS["dataset"]
     output:
-        processed=PATHS['preprocess_output']
+        processed=PATHS['preprocess_output'],
         config_copy=PATHS['config_copy']
     resources:
         mem_mb=12000,
