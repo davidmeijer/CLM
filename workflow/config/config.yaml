@@ -164,6 +164,8 @@ paths:
 
   # Processed dataset before augmentation/training.
   preprocess_output: "{output_dir}/prior/raw/{dataset}.txt"
+  # Copy of the raw configuration file used for the run.
+  config_copy: "{output_dir}/prior/raw/{dataset}_config.yaml"
   # Training file for each cross-validation fold.
   train_file: "{output_dir}/{enum_factor}/prior/inputs/train_{dataset}_{repr}_{fold}.smi"
   # Vocabulary file for the tokenized sequences.
