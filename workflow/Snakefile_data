@@ -1,5 +1,6 @@
 configfile: "config/config.yaml"
 threads: 1
+import os
 # -----------------------------------------------------------------------------
 # Setup
 # -----------------------------------------------------------------------------
@@ -17,6 +18,30 @@ OUTPUT_DIR = config['paths']['output_dir']
 MODEL_PARAMS = config['model_params']
 MIN_FREQS = config['structural_prior_min_freq']
 ERR_PPM = config['err_ppm']
+FINETUNE_CFG = config.get("finetune", {})
+FINETUNE_ENABLED = FINETUNE_CFG.get("enabled", False)
+FINETUNE_INIT_MODEL = FINETUNE_CFG.get("init_model_file", "")
+FINETUNE_DIR = FINETUNE_CFG.get("dir", "")
+
+
+def _init_model_param(wildcards):
+    if not FINETUNE_ENABLED:
+        return ""
+    template = FINETUNE_INIT_MODEL
+    if not template:
+        base_dir = FINETUNE_DIR if FINETUNE_DIR else OUTPUT_DIR
+        template = os.path.join(
+            base_dir,
+            "{enum_factor}/prior/models/{dataset}_{repr}_{fold}_{train_seed}_model.pt",
+        )
+    return "--init_model_file " + template.format(
+        output_dir=OUTPUT_DIR,
+        enum_factor=wildcards.enum_factor,
+        dataset=DATASET,
+        repr=wildcards.repr,
+        fold=wildcards.fold,
+        train_seed=wildcards.train_seed,
+    )
 
 shell.executable("/bin/bash")
 
@@ -166,6 +191,8 @@ rule train_models_RNN:
     output:
         model_file=PATHS['model_file'],
         loss_file=PATHS['loss_file']
+    params:
+        init_model_file=_init_model_param
     resources:
         mem_mb=32000,
         runtime=4320,
@@ -190,6 +217,7 @@ rule train_models_RNN:
         '--vocab_file {input.vocab_file} '
         '--model_file {output.model_file} '
         '--loss_file {output.loss_file} '
+        '{params.init_model_file} '
         f'{"--conditional" if config["model_params"]["conditional"]["enabled"] else ""} '
         f'{"--conditional_emb" if config["model_params"]["conditional"]["emb"] else ""} '
         f'{"--conditional_emb_l" if config["model_params"]["conditional"]["emb_l"] else ""} '

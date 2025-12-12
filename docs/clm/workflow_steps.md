@@ -42,6 +42,8 @@ in the entire pipeline**. The specifics of the model (number of layers/epochs/ba
 
 Each training fold is internally split into train/validation split of 0.9. The trained model and loss files are written out.
 
+You can optionally warm start the training from an existing checkpoint by supplying `--init_model_file` (or setting `finetune.init_model_file` in the Snakemake config).
+
 
 ### sample_molecules_RNN
 

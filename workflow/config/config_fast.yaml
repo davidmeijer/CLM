@@ -1,3 +1,11 @@
+# Optional warm-start checkpoint for fine-tuning.
+# Set enabled: true to activate. Provide either init_model_file (explicit path/pattern)
+# or dir (base dir of prior models; uses the model_file pattern under that dir).
+finetune:
+  enabled: false
+  dir: ""
+  init_model_file: ""
+
 # Molecular sequence representations of chemical species for training and sampling.
 # Determines how the molecules are encoded internally.
 # The only avaiable option for now is 'SMILES'.

@@ -89,6 +89,12 @@ def add_args(parser):
     parser.add_argument(
         "--loss_file", type=str, help="File path to save the training loss data"
     )
+    parser.add_argument(
+        "--init_model_file",
+        type=str,
+        default=None,
+        help="Optional checkpoint to warm start training from",
+    )
 
     parser.add_argument(
         "--conditional", action="store_true", help="Activate Conditional RNN model"
@@ -166,6 +172,7 @@ def train_models_RNN(
     smiles_file,
     model_file,
     loss_file,
+    init_model_file=None,
     conditional=False,
     conditional_emb=False,
     conditional_emb_l=True,
@@ -203,6 +210,10 @@ def train_models_RNN(
             hidden_size=hidden_size,
             dropout=dropout,
         )
+
+    if init_model_file is not None:
+        logger.info(f"Loading initial model weights from {init_model_file}")
+        model.load_state_dict(torch.load(init_model_file, map_location=model.device))
 
     logger.info(dataset.vocabulary.dictionary)
 
@@ -282,6 +293,7 @@ def main(args):
         smiles_file=args.smiles_file,
         model_file=args.model_file,
         loss_file=args.loss_file,
+        init_model_file=args.init_model_file,
         conditional=args.conditional,
         conditional_emb=args.conditional_emb,
         conditional_emb_l=args.conditional_emb_l,

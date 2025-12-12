@@ -2,8 +2,8 @@
 # Set enabled: true to activate. Provide either init_model_file (explicit path/pattern)
 # or dir (base dir of prior models; uses the model_file pattern under that dir).
 finetune:
-  enabled: false
-  dir: ""
+  enabled: true
+  dir: "data"
   init_model_file: ""
 
 # Molecular sequence representations of chemical species for training and sampling.
@@ -78,9 +78,9 @@ model_params:
   n_layers: 3 # Number of stacked RNN layers in the model.
   dropout: 0 # Dropout rate applied to the RNN layer for regularization.
   batch_size: 64 # Number of samples processed before the models internal parameters are updated.
-  learning_rate: 0.001 # Used by the optimizer to update model parameters.
-  max_epochs: 999999 # Maximum number of training epochs (complete passes through the training dataset).
-  patience: 50000 # Number of steps with no improvement in the validation loss after which early stopping is triggered.
+  learning_rate: 0.00001 # Used by the optimizer to update model parameters; dialed down for finetuning.
+  max_epochs: 50 # Maximum number of training epochs (complete passes through the training dataset); dialed down for finetuning.
+  patience: 2000 # Number of steps with no improvement in the validation loss after which early stopping is triggered; dialed down for finetuning.
 
   # An RNN model conditioned on input descriptors (experimentally obtained properties of the input SMILES).
   # Note that rnn_type and other RNN architecture parameters are still applicable in this case.
@@ -162,7 +162,7 @@ paths:
   # Modify these paths to match your system.
 
   # Base directory for outputs
-  output_dir: data
+  output_dir: data_finetune
   # The input dataset file.
   dataset: "../tests/test_data/LOTUS_truncated.txt"
   # File containing data from PubChem.
