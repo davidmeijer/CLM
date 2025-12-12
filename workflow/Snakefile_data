@@ -22,11 +22,13 @@ FINETUNE_CFG = config.get("finetune", {})
 FINETUNE_ENABLED = FINETUNE_CFG.get("enabled", False)
 FINETUNE_INIT_MODEL = FINETUNE_CFG.get("init_model_file", "")
 FINETUNE_DIR = FINETUNE_CFG.get("dir", "")
+FINETUNE_ORIGINAL_DATASET = FINETUNE_CFG.get("original_dataset_name", None)
 
 
 def _init_model_param(wildcards):
     if not FINETUNE_ENABLED:
         return ""
+
     template = FINETUNE_INIT_MODEL
     if not template:
         base_dir = FINETUNE_DIR if FINETUNE_DIR else OUTPUT_DIR
@@ -34,10 +36,15 @@ def _init_model_param(wildcards):
             base_dir,
             "{enum_factor}/prior/models/{dataset}_{repr}_{fold}_{train_seed}_model.pt",
         )
+
+    dataset = DATASET
+    if FINETUNE_ORIGINAL_DATASET is not None:
+        dataset = FINETUNE_ORIGINAL_DATASET
+
     return "--init_model_file " + template.format(
         output_dir=OUTPUT_DIR,
         enum_factor=wildcards.enum_factor,
-        dataset=DATASET,
+        dataset=dataset,
         repr=wildcards.repr,
         fold=wildcards.fold,
         train_seed=wildcards.train_seed,
