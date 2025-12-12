@@ -188,7 +188,7 @@ def _adapt_state_dict_for_vocab(sd, old_tokens, merged_tokens, init_model_file):
             new_dec_w[i] = dec_w[j]
             new_dec_b[i] = dec_b[j]
         else:
-            torch.nn.init.normal_(new_emb[i], mean=0.0, std=0.2)
+            torch.nn.init.normal_(new_emb[i], mean=0.0, std=0.02)
             torch.nn.init.normal_(new_dec_w[i])
             new_dec_b[i] = 0.0
     logger.info("Adapting checkpoint vocab from %s -> %s tokens (init_model_file=%s)", len(old_tokens), len(merged_tokens), init_model_file)
@@ -253,6 +253,24 @@ def train_models_RNN(
     os.makedirs(os.path.dirname(os.path.abspath(model_file)), exist_ok=True)
     os.makedirs(os.path.dirname(os.path.abspath(loss_file)), exist_ok=True)
 
+    # Merge vocabularies if initializing from a checkpoint
+    merged_tokens = None
+    init_vocab_tokens = []
+    if init_model_file is not None:
+        # Locat the vocab that was used to train the init checkpoint
+        init_vocab_path = _infer_init_vocab_path(init_model_file)
+        init_vocab_tokens = _read_vocab_tokens(init_vocab_path)
+
+        # Read the vocab for this run and append any tokens not in the init vocab
+        run_vocab_tokens = _read_vocab_tokens(vocab_file)
+        merged_tokens = _merge_vocab(init_vocab_tokens, run_vocab_tokens)
+
+        # If merging added tokens, overwrite the run vocab so training uses the union
+        if merged_tokens and merged_tokens != run_vocab_tokens:
+            logger.info("Writing merged vocabulary with %d tokens to %s", len(merged_tokens), vocab_file)
+            _write_vocab_tokens(merged_tokens, vocab_file)
+
+    # Load dataset/model after vocab merge so vocabulary length matches
     dataset = load_dataset(representation, input_file, vocab_file)
 
     if conditional:
@@ -281,32 +299,16 @@ def train_models_RNN(
         )
 
     if init_model_file is not None:
-        # Try to locate the vocab that was used to train the init checkpoint
-        init_vocab_path = _infer_init_vocab_path(init_model_file)
-        init_vocab_tokens = _read_vocab_tokens(init_vocab_path)
-
-        # Read the vocab for this run and append any tokens not in the init vocab
-        run_vocab_tokens = _read_vocab_tokens(vocab_file)
-        merged_tokens = _merge_vocab(init_vocab_tokens, run_vocab_tokens)
-
-        # If merging added tokens, overwrite the run vocab so training uses the union
-        if merged_tokens and merged_tokens != run_vocab_tokens:
-            logger.info("Writing merged vocabulary with %d tokens to %s", len(merged_tokens), vocab_file)
-            _write_vocab_tokens(merged_tokens, vocab_file)
-
         # Resize embedding/decoder weights to the merged vocab, preserving old rows
-        if merged_tokens:
-            # Model moves to GPU during construction inside the model class anyways
-            state_dict = torch.load(init_model_file, map_location="cpu")
-            state_dict = _adapt_state_dict_for_vocab(
-                state_dict,
-                init_vocab_tokens or merged_tokens,
-                merged_tokens,
-                init_model_file,
-            )
-            model.load_state_dict(state_dict)
-        else:
-            model.load_state_dict(torch.load(init_model_file, map_location=model.device))
+        sd = torch.load(init_model_file, map_location="cpu")
+        sd = _adapt_state_dict_for_vocab(
+            sd,
+            init_vocab_tokens or merged_tokens or run_vocab_tokens,
+            merged_tokens or run_vocab_tokens,
+            init_model_file,
+        )
+        model.load_state_dict(sd, strict=False)
+        model.to(model.device)
 
     logger.info(dataset.vocabulary.dictionary)
 
