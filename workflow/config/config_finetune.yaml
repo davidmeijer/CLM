@@ -4,7 +4,7 @@
 finetune:
   enabled: true
   dir: "data"
-  original_dataset_name: "LOTUS_truncated"
+  original_dataset_name: LOTUS_truncated
   init_model_file: ""
 
 # Molecular sequence representations of chemical species for training and sampling.
